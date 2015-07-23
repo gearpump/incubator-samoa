@@ -1,4 +1,24 @@
-package org.apache.samoa.topology.impl;
+package org.apache.samoa.topology.impl.gearpump;
+
+/*
+ * #%L
+ * SAMOA
+ * %%
+ * Copyright (C) 2014 - 2015 Apache Software Foundation
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
 
 import org.apache.gearpump.Message;
 import org.apache.gearpump.cluster.UserConfig;
@@ -10,36 +30,21 @@ import org.apache.samoa.core.Processor;
 
 import java.util.Set;
 
-/**
- * Created by keweisun on 7/15/2015.
- */
-public class GearpumpProcessingItemTask extends Task {
+public class ProcessingItemTask extends Task {
 
     private TaskContext taskContext;
     private UserConfig userConfig;
     private Processor processor;
     private Set<GearpumpStream> streams;
 
-    public GearpumpProcessingItemTask(TaskContext taskContext, UserConfig userConf) {
+    public ProcessingItemTask(TaskContext taskContext, UserConfig userConf) {
         super(taskContext, userConf);
         this.taskContext = taskContext;
         this.userConfig = userConf;
-        byte[] bytes = userConf.getBytes(GearpumpSamoaUtils.piConf).get();
-        GearpumpProcessingItem pi = (GearpumpProcessingItem) GearpumpSamoaUtils.bytesToObject(bytes);
+        byte[] bytes = userConf.getBytes(Utils.piConf).get();
+        ProcessingItem pi = (ProcessingItem) Utils.bytesToObject(bytes);
         this.processor = pi.getProcessor();
-        if (this.processor != null) {
-            LOG().info("piTask.processor is not null");
-            LOG().info("piTask.processor: " + this.processor.getClass().getSimpleName());
-        } else {
-            LOG().info("piTask.processor is null");
-        }
         this.streams = pi.getStreams();
-        if (this.streams != null && this.streams.isEmpty()) {
-            LOG().info("piTask.streams is not null");
-            LOG().info("piTask.streams,size: " + this.streams.size());
-        } else {
-            LOG().info("piTask.processor is null");
-        }
     }
 
     public void setProcessor(Processor processor) {
@@ -50,12 +55,6 @@ public class GearpumpProcessingItemTask extends Task {
     public void onStart(StartTime startTime) {
         for (GearpumpStream stream : streams) {
             stream.setTaskContext(this.taskContext);
-        }
-        if (this.processor != null) {
-            LOG().info("piTask.processor is not null");
-            LOG().info("piTask.processor: " + this.processor.getClass().getSimpleName());
-        } else {
-            LOG().info("piTask.processor is null");
         }
 
         processor.onCreate(taskContext.taskId().index());

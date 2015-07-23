@@ -1,4 +1,24 @@
-package org.apache.samoa.topology.impl;
+package org.apache.samoa.topology.impl.gearpump;
+
+/*
+ * #%L
+ * SAMOA
+ * %%
+ * Copyright (C) 2014 - 2015 Apache Software Foundation
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
 
 import com.github.javacliparser.ClassOption;
 import org.apache.samoa.tasks.Task;
@@ -7,15 +27,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
-/**
- * Created by keweisun on 7/13/2015.
- */
-public class GearpumpSamoaUtils {
+public class Utils {
 
     public static String piConf = "processingItem";
     public static String entrancePiConf = "entranceProcessingItem";
 
-    private static final Logger logger = LoggerFactory.getLogger(GearpumpSamoaUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(Utils.class);
 
     public static byte[] objectToBytes(Object object) {
         ObjectOutputStream oos = null;
@@ -51,7 +68,7 @@ public class GearpumpSamoaUtils {
         return null;
     }
 
-    public static GearpumpTopology argsToTopology(String[] args) {
+    public static Topology argsToTopology(String[] args) {
         StringBuilder cliString = new StringBuilder();
         for (String arg : args) {
             cliString.append(" ").append(arg);
@@ -61,10 +78,10 @@ public class GearpumpSamoaUtils {
         Task task = getTask(cliString.toString());
 
         // TODO: remove setFactory method with DynamicBinding
-        task.setFactory(new GearpumpComponentFactory());
+        task.setFactory(new ComponentFactory());
         task.init();
 
-        return (GearpumpTopology) task.getTopology();
+        return (Topology) task.getTopology();
     }
 
     public static Task getTask(String cliString) {
