@@ -20,17 +20,12 @@ package org.apache.samoa.topology.impl;
  * #L%
  */
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.samoa.core.EntranceProcessor;
 import org.apache.samoa.core.Processor;
-import org.apache.samoa.topology.ComponentFactory;
-import org.apache.samoa.topology.EntranceProcessingItem;
-import org.apache.samoa.topology.IProcessingItem;
-import org.apache.samoa.topology.ProcessingItem;
-import org.apache.samoa.topology.Stream;
-import org.apache.samoa.topology.Topology;
+import org.apache.samoa.topology.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Component factory implementation for samoa-storm

@@ -233,7 +233,7 @@ elif [ $PLATFORM = 'GEARPUMP' ]; then
 	done
 
 	DEPLOYABLE=$JAR_PATH
-	$GEARPUMP_EXEC app -jar $DEPLOYABLE org.apache.samoa.topology.impl.GearpumpDoTask $COMPLETE_ARG
+	$GEARPUMP_EXEC app -jar $DEPLOYABLE org.apache.samoa.topology.impl.gearpump.DoTask $COMPLETE_ARG
 #	CLASSPATH="$CLASSPATH:$GEARPUMP_HOME/lib/*:$DEPLOYABLE"
 #	java -cp $CLASSPATH org.apache.samoa.LocalStormDoTask $COMPLETE_ARG $NUM_WORKER
 
