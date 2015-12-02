@@ -122,6 +122,7 @@
                 <module>samoa-flink</module>
                 <module>samoa-s4</module>
                 <module>samoa-samza</module>
+                <module>samoa-gearpump</module>
                 <module>samoa-test</module>
             </modules>
         </profile>
