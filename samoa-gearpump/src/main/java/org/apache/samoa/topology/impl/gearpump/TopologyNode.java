@@ -20,12 +20,12 @@ package org.apache.samoa.topology.impl.gearpump;
  * #L%
  */
 
-import org.apache.gearpump.streaming.Processor;
+import io.gearpump.streaming.Processor;
 
 public interface TopologyNode {
 
-    public GearpumpStream createStream();
+    GearpumpStream createStream();
 
-    public Processor createGearpumpProcessor();
+    Processor createGearpumpProcessor();
 
 }

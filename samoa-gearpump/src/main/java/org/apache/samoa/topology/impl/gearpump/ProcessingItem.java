@@ -20,7 +20,7 @@ package org.apache.samoa.topology.impl.gearpump;
  * #L%
  */
 
-import org.apache.gearpump.cluster.UserConfig;
+import io.gearpump.cluster.UserConfig;
 import org.apache.samoa.core.Processor;
 import org.apache.samoa.topology.AbstractProcessingItem;
 import org.apache.samoa.topology.Stream;
@@ -58,11 +58,11 @@ public class ProcessingItem extends AbstractProcessingItem implements TopologyNo
     }
 
     @Override
-    public org.apache.gearpump.streaming.Processor createGearpumpProcessor() {
+    public io.gearpump.streaming.Processor createGearpumpProcessor() {
         byte[] bytes = Utils.objectToBytes(this);
         UserConfig userConfig = UserConfig.empty().withBytes(Utils.piConf, bytes);
-        org.apache.gearpump.streaming.Processor<ProcessingItemTask> gearpumpProcessor =
-                new org.apache.gearpump.streaming.Processor
+        io.gearpump.streaming.Processor<ProcessingItemTask> gearpumpProcessor =
+                new io.gearpump.streaming.Processor
                 .DefaultProcessor<>(this.getParallelism(), this.getName(), userConfig, ProcessingItemTask.class);
         return gearpumpProcessor;
     }

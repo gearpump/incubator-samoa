@@ -20,10 +20,10 @@ package org.apache.samoa.topology.impl.gearpump;
  * #L%
  */
 
-import org.apache.gearpump.cluster.UserConfig;
-import org.apache.gearpump.cluster.client.ClientContext;
-import org.apache.gearpump.streaming.StreamApplication;
-import org.apache.gearpump.util.Graph;
+import io.gearpump.cluster.UserConfig;
+import io.gearpump.cluster.client.ClientContext;
+import io.gearpump.streaming.StreamApplication;
+import io.gearpump.util.Graph;
 
 public class DoTask {
 

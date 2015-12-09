@@ -35,8 +35,8 @@ public class Utils {
     private static final Logger logger = LoggerFactory.getLogger(Utils.class);
 
     public static byte[] objectToBytes(Object object) {
-        ObjectOutputStream oos = null;
-        ByteArrayOutputStream baos = null;
+        ObjectOutputStream oos;
+        ByteArrayOutputStream baos;
         try {
             baos = new ByteArrayOutputStream();
             oos = new ObjectOutputStream(baos);
@@ -53,8 +53,8 @@ public class Utils {
     }
 
     public static Object bytesToObject(byte[] bytes) {
-        ByteArrayInputStream bais = null;
-        ObjectInputStream ois = null;
+        ByteArrayInputStream bais;
+        ObjectInputStream ois;
         try {
             bais = new ByteArrayInputStream(bytes);
             ois = new ObjectInputStream(bais);

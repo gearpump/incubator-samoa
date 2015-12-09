@@ -20,11 +20,11 @@ package org.apache.samoa.topology.impl.gearpump;
  * #L%
  */
 
-import org.apache.gearpump.Message;
-import org.apache.gearpump.cluster.UserConfig;
-import org.apache.gearpump.streaming.task.StartTime;
-import org.apache.gearpump.streaming.task.Task;
-import org.apache.gearpump.streaming.task.TaskContext;
+import io.gearpump.Message;
+import io.gearpump.cluster.UserConfig;
+import io.gearpump.streaming.task.StartTime;
+import io.gearpump.streaming.task.Task;
+import io.gearpump.streaming.task.TaskContext;
 import org.apache.samoa.core.EntranceProcessor;
 
 public class EntranceProcessingItemTask extends Task {

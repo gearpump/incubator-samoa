@@ -20,11 +20,12 @@ package org.apache.samoa.topology.impl.gearpump;
  * #L%
  */
 
-import org.apache.gearpump.partitioner.ShufflePartitioner;
-import org.apache.gearpump.partitioner.HashPartitioner;
-import org.apache.gearpump.partitioner.BroadcastPartitioner;
-import org.apache.gearpump.streaming.Processor;
-import org.apache.gearpump.util.Graph;
+import io.gearpump.partitioner.BroadcastPartitioner;
+import io.gearpump.partitioner.HashPartitioner;
+import io.gearpump.partitioner.Partitioner;
+import io.gearpump.partitioner.ShufflePartitioner;
+import io.gearpump.streaming.Processor;
+import io.gearpump.util.Graph;
 import org.apache.samoa.topology.AbstractTopology;
 import org.apache.samoa.topology.IProcessingItem;
 import org.apache.samoa.topology.Stream;
@@ -42,7 +43,7 @@ public class Topology extends AbstractTopology {
     public Topology(String name) {
         super(name);
         graph = Graph.empty();
-        piToProcessor = new HashMap<IProcessingItem,Processor>();
+        piToProcessor = new HashMap<>();
     }
 
     public Graph getGraph() {
@@ -67,24 +68,19 @@ public class Topology extends AbstractTopology {
             Processor sourceProcessor = piToProcessor.get(sourcePi);
             Processor targetProcessor = piToProcessor.get(targetPi);
             PartitioningScheme scheme = gearpumpStream.getScheme();
-            ShufflePartitioner shufflePartitioner;
-            HashPartitioner hashPartitioner;
-            BroadcastPartitioner broadcastPartitioner;
-
+            Partitioner partitioner = null;
             switch (scheme) {
                 case SHUFFLE:
-                    shufflePartitioner = new ShufflePartitioner();
-                    graph.addEdge(sourceProcessor, shufflePartitioner, targetProcessor);
+                    partitioner = new ShufflePartitioner();
                     break;
                 case GROUP_BY_KEY:
-                    hashPartitioner = new HashPartitioner();
-                    graph.addEdge(sourceProcessor, hashPartitioner, targetProcessor);
+                    partitioner = new HashPartitioner();
                     break;
                 case BROADCAST:
-                    broadcastPartitioner = new BroadcastPartitioner();
-                    graph.addEdge(sourceProcessor, broadcastPartitioner, targetProcessor);
+                    partitioner = new BroadcastPartitioner();
                     break;
             }
+            graph.addEdge(sourceProcessor, partitioner, targetProcessor);
         }
     }
 }

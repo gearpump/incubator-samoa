@@ -20,8 +20,8 @@ package org.apache.samoa.topology.impl.gearpump;
  * #L%
  */
 
-import org.apache.gearpump.cluster.UserConfig;
-import org.apache.gearpump.streaming.Processor;
+import io.gearpump.cluster.UserConfig;
+import io.gearpump.streaming.Processor;
 import org.apache.samoa.core.EntranceProcessor;
 import org.apache.samoa.topology.AbstractEntranceProcessingItem;
 import org.apache.samoa.topology.Stream;
@@ -51,7 +51,7 @@ public class EntranceProcessingItem extends AbstractEntranceProcessingItem
         byte[] bytes = Utils.objectToBytes(this);
         UserConfig userConfig = UserConfig.empty().withBytes(Utils.entrancePiConf,bytes);
         Processor<EntranceProcessingItemTask> gearpumpProcessor =
-                new org.apache.gearpump.streaming.Processor
+                new io.gearpump.streaming.Processor
                 .DefaultProcessor<>(1, this.getName(), userConfig, EntranceProcessingItemTask.class);
         return gearpumpProcessor;
     }

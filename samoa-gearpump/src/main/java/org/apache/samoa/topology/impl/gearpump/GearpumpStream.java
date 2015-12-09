@@ -20,8 +20,8 @@ package org.apache.samoa.topology.impl.gearpump;
  * #L%
  */
 
-import org.apache.gearpump.Message;
-import org.apache.gearpump.streaming.task.TaskContext;
+import io.gearpump.Message;
+import io.gearpump.streaming.task.TaskContext;
 import org.apache.samoa.core.ContentEvent;
 import org.apache.samoa.topology.AbstractStream;
 import org.apache.samoa.topology.IProcessingItem;
