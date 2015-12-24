@@ -103,6 +103,7 @@ final class ModelAggregatorProcessor implements Processor {
 
   private final long sampleFrequency = 100000;
   private int testIndex = 0;
+  private int instancesCount = 0;
 
   // private constructor based on Builder pattern
   private ModelAggregatorProcessor(Builder builder) {
@@ -300,7 +301,7 @@ final class ModelAggregatorProcessor implements Processor {
       if (isTesting) {
 
         //Serialize data and VHT model
-        if (this.numBatches % sampleFrequency == 0) {
+        if ((instancesCount != 0) && (instancesCount % sampleFrequency == 0)) {
           File fileData = new File("vht-data-" + testIndex);
           File fileModel = new File("vht-model-" + testIndex);
           try {
@@ -311,6 +312,7 @@ final class ModelAggregatorProcessor implements Processor {
           }
           testIndex++;
         }
+        instancesCount++;
 
         prediction = getVotesForInstance(inst, false);
         this.resultStream.put(newResultContentEvent(prediction, instContent));
