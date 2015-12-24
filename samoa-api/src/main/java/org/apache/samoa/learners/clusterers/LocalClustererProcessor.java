@@ -30,9 +30,13 @@ import org.apache.samoa.instances.DenseInstance;
 import org.apache.samoa.instances.Instance;
 import org.apache.samoa.moa.cluster.Clustering;
 import org.apache.samoa.moa.core.DataPoint;
+import org.apache.samoa.moa.core.SerializeUtils;
 import org.apache.samoa.topology.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
 
 //import weka.core.Instance;
 
@@ -138,11 +142,23 @@ final public class LocalClustererProcessor implements Processor {
         model.trainOnInstance(point);
         instancesCount++;
       }
+
+      if (instancesCount % this.sampleFrequency == 0) {
+        logger.info("Trained model using {} events with classifier id {}", instancesCount, this.modelId); // getId());
+        String filePath = "clu-model";
+        File file = new File(filePath);
+        try {
+          SerializeUtils.writeToFile(file, ((ClustreamClustererAdapter) model).getLearner());
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
     }
 
+    /*
     if (instancesCount % this.sampleFrequency == 0) {
       logger.info("Trained model using {} events with classifier id {}", instancesCount, this.modelId); // getId());
-    }
+    } */
   }
 
   /**

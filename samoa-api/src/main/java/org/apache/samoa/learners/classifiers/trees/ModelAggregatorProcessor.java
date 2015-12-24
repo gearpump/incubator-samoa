@@ -22,6 +22,8 @@ package org.apache.samoa.learners.classifiers.trees;
 
 import static org.apache.samoa.moa.core.Utils.maxIndex;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,6 +49,7 @@ import org.apache.samoa.moa.classifiers.core.AttributeSplitSuggestion;
 import org.apache.samoa.moa.classifiers.core.driftdetection.ChangeDetector;
 import org.apache.samoa.moa.classifiers.core.splitcriteria.InfoGainSplitCriterion;
 import org.apache.samoa.moa.classifiers.core.splitcriteria.SplitCriterion;
+import org.apache.samoa.moa.core.SerializeUtils;
 import org.apache.samoa.topology.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,6 +100,9 @@ final class ModelAggregatorProcessor implements Processor {
   private final int gracePeriod;
   private final int parallelismHint;
   private final long timeOut;
+
+  private final long sampleFrequency = 100000;
+  private int testIndex = 0;
 
   // private constructor based on Builder pattern
   private ModelAggregatorProcessor(Builder builder) {
@@ -278,7 +284,6 @@ final class ModelAggregatorProcessor implements Processor {
         processInstances(contentEventList.remove(0));
       }
     }
-
   }
 
   private int numBatches = 0;
@@ -293,6 +298,20 @@ final class ModelAggregatorProcessor implements Processor {
       // boolean testAndTrain = isTraining; //Train after testing
       double[] prediction = null;
       if (isTesting) {
+
+        //Serialize data and VHT model
+        if (this.numBatches % sampleFrequency == 0) {
+          File fileData = new File("vht-data-" + testIndex);
+          File fileModel = new File("vht-model-" + testIndex);
+          try {
+            SerializeUtils.writeToFile(fileData, inst);
+            SerializeUtils.writeToFile(fileModel, this.treeRoot);
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+          testIndex++;
+        }
+
         prediction = getVotesForInstance(inst, false);
         this.resultStream.put(newResultContentEvent(prediction, instContent));
       }
