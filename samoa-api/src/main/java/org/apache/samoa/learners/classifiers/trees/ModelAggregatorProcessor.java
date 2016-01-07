@@ -306,7 +306,8 @@ final class ModelAggregatorProcessor implements Processor {
           File fileModel = new File("vht-model-" + testIndex);
           try {
             SerializeUtils.writeToFile(fileData, inst);
-            SerializeUtils.writeToFile(fileModel, this.treeRoot);
+            HoeffdingTreeModel hoeffdingTreeModel = new HoeffdingTreeModel(dataset, treeRoot);
+            SerializeUtils.writeToFile(fileModel, hoeffdingTreeModel);
           } catch (IOException e) {
             e.printStackTrace();
           }

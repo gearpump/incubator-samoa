@@ -24,7 +24,6 @@ package org.apache.samoa.learners.clusterers;
  */
 import org.apache.samoa.core.ContentEvent;
 import org.apache.samoa.core.Processor;
-import org.apache.samoa.evaluation.ClusteringEvaluationContentEvent;
 import org.apache.samoa.evaluation.ClusteringResultContentEvent;
 import org.apache.samoa.instances.DenseInstance;
 import org.apache.samoa.instances.Instance;
@@ -147,8 +146,10 @@ final public class LocalClustererProcessor implements Processor {
         logger.info("Trained model using {} events with classifier id {}", instancesCount, this.modelId); // getId());
         String filePath = "clu-model";
         File file = new File(filePath);
+        CluStreamModel cluStreamModel =
+                new CluStreamModel(((ClustreamClustererAdapter) model).learner.getMicroClusteringResult());
         try {
-          SerializeUtils.writeToFile(file, ((ClustreamClustererAdapter) model).getLearner());
+          SerializeUtils.writeToFile(file, cluStreamModel);
         } catch (IOException e) {
           e.printStackTrace();
         }

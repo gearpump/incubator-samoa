@@ -168,8 +168,4 @@ public class ClustreamClustererAdapter implements LocalClustererAdapter, Configu
   public Instances getDataset() {
     return this.dataset;
   }
-
-  public org.apache.samoa.moa.clusterers.Clusterer getLearner() {
-    return learner;
-  }
 }
