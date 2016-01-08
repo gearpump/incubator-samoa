@@ -1,1 +1,1 @@
-../bin/samoa local ../target/SAMOA-Local-0.3.0-SNAPSHOT.jar "ClusteringEvaluation"
+../bin/samoa local ../target/SAMOA-Local-0.4.0-incubating-SNAPSHOT.jar "ClusteringEvaluation"

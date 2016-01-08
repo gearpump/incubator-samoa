@@ -24,10 +24,7 @@ import static org.apache.samoa.moa.core.Utils.maxIndex;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -306,16 +303,21 @@ final class ModelAggregatorProcessor implements Processor {
           File fileModel = new File("vht-model-" + testIndex);
           try {
             SerializeUtils.writeToFile(fileData, inst);
-            HoeffdingTreeModel hoeffdingTreeModel = new HoeffdingTreeModel(dataset, treeRoot);
+            HoeffdingTreeModel hoeffdingTreeModel =
+                    new HoeffdingTreeModel(dataset, treeRoot);
             SerializeUtils.writeToFile(fileModel, hoeffdingTreeModel);
           } catch (IOException e) {
             e.printStackTrace();
           }
           testIndex++;
         }
-        instancesCount++;
 
         prediction = getVotesForInstance(inst, false);
+
+        if ((instancesCount != 0) && (instancesCount % sampleFrequency == 0)) {
+          System.out.println("### predict: " + Arrays.toString(prediction));
+        }
+        instancesCount++;
         this.resultStream.put(newResultContentEvent(prediction, instContent));
       }
 
