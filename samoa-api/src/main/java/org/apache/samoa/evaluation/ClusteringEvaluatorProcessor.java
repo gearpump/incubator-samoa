@@ -20,10 +20,7 @@ package org.apache.samoa.evaluation;
  * #L%
  */
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -36,6 +33,7 @@ import org.apache.samoa.moa.cluster.Clustering;
 import org.apache.samoa.moa.clusterers.KMeans;
 import org.apache.samoa.moa.core.DataPoint;
 import org.apache.samoa.moa.core.Measurement;
+import org.apache.samoa.moa.core.SerializeUtils;
 import org.apache.samoa.moa.evaluation.LearningCurve;
 import org.apache.samoa.moa.evaluation.LearningEvaluation;
 import org.apache.samoa.moa.evaluation.MeasureCollection;
@@ -113,6 +111,14 @@ public class ClusteringEvaluatorProcessor implements Processor {
 
     if (totalCount == 1) {
       experimentStart = System.nanoTime();
+    }
+
+    // Serialize evaluate data point
+    File file = new File("clu-data");
+    try {
+      SerializeUtils.writeToFile(file, points);
+    } catch (IOException e) {
+      e.printStackTrace();
     }
 
     return false;

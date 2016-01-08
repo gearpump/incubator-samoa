@@ -26,6 +26,7 @@ import org.apache.samoa.instances.Instance;
 import org.apache.samoa.instances.Instances;
 import org.apache.samoa.instances.InstancesHeader;
 import org.apache.samoa.moa.cluster.Clustering;
+import org.apache.samoa.moa.clusterers.Clusterer;
 import org.apache.samoa.moa.clusterers.clustream.Clustream;
 
 import com.github.javacliparser.ClassOption;
@@ -167,5 +168,4 @@ public class ClustreamClustererAdapter implements LocalClustererAdapter, Configu
   public Instances getDataset() {
     return this.dataset;
   }
-
 }
