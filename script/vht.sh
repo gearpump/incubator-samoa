@@ -1,1 +1,0 @@
-../bin/samoa local ../target/SAMOA-Local-0.4.0-incubating-SNAPSHOT.jar "PrequentialEvaluation -d ./dump.csv -i 1000000 -f 100000 -l (org.apache.samoa.learners.classifiers.trees.VerticalHoeffdingTree -p 4) -s (org.apache.samoa.moa.streams.generators.RandomTreeGenerator -c 2 -o 10 -u 10)"
