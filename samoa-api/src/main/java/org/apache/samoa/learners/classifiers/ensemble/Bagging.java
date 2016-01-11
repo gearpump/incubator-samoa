@@ -29,6 +29,7 @@ import java.util.Set;
 import org.apache.samoa.core.Processor;
 import org.apache.samoa.instances.Instances;
 import org.apache.samoa.learners.Learner;
+import org.apache.samoa.learners.SerializableLearner;
 import org.apache.samoa.learners.classifiers.trees.VerticalHoeffdingTree;
 import org.apache.samoa.topology.Stream;
 import org.apache.samoa.topology.TopologyBuilder;
@@ -108,6 +109,13 @@ public class Bagging implements Learner, Configurable {
     for (Learner member : ensemble) {
       for (Stream subResultStream : member.getResultStreams()) { // a learner can have multiple output streams
         this.builder.connectInputKeyStream(subResultStream, predictionCombinerP); // the key is the instance id to combine predictions
+      }
+      // for serialize
+      if (member instanceof SerializableLearner) {
+        for (Stream subModelStream : ((SerializableLearner) member).getModelStreams()) {
+          this.builder.connectInputKeyStream(subModelStream, predictionCombinerP);
+          // todo: if is connectInputKeyStream, use evaluationIndex as key
+        }
       }
     }
 

@@ -23,13 +23,17 @@ package org.apache.samoa.learners.classifiers.ensemble;
 /**
  * License
  */
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 import org.apache.samoa.core.ContentEvent;
 import org.apache.samoa.core.Processor;
+import org.apache.samoa.learners.Model;
+import org.apache.samoa.learners.ModelContentEvent;
 import org.apache.samoa.learners.ResultContentEvent;
 import org.apache.samoa.moa.core.DoubleVector;
+import org.apache.samoa.moa.core.SerializeUtils;
 import org.apache.samoa.topology.Stream;
 
 /**
@@ -91,6 +95,10 @@ public class PredictionCombinerProcessor implements Processor {
 
   protected Map<Integer, DoubleVector> mapVotesforInstanceReceived;
 
+  protected Map<Long, Integer> mapCountsforModelReceived; // for serialize
+
+  protected Map<Long, ArrayList<Model>> mapModelListforModelReceived; // for serialize
+
   /**
    * On event.
    * 
@@ -99,6 +107,10 @@ public class PredictionCombinerProcessor implements Processor {
    * @return true, if successful
    */
   public boolean process(ContentEvent event) {
+    // for serialize
+    if (event instanceof ModelContentEvent) {
+      return this.processModel((ModelContentEvent) event);
+    }
 
     ResultContentEvent inEvent = (ResultContentEvent) event;
     double[] prediction = inEvent.getClassVotes();
@@ -114,11 +126,41 @@ public class PredictionCombinerProcessor implements Processor {
           inEvent.getClassId(), combinedVote.getArrayCopy(), inEvent.isLastEvent());
       outContentEvent.setEvaluationIndex(inEvent.getEvaluationIndex());
       outputStream.put(outContentEvent);
-      clearStatisticsInstance(instanceIndex);
+      // clearStatisticsInstance(instanceIndex);
       return true;
     }
     return false;
 
+  }
+
+  // for serialize
+  protected boolean processModel(ModelContentEvent event) {
+    Model model = event.getModel();
+    long modelIndex = event.getModelIndex();
+    long instanceIndex = event.getInstanceIndex();
+
+    this.addStatisticsForModelReceived(modelIndex, model, 1);
+    if (hasAllVotesArrivedModel(modelIndex)) {
+      ArrayList<Double> modelWeightList = new ArrayList<>(this.ensembleSize);
+      Collections.fill(modelWeightList, 1.0);
+      EnsembleModel baggingModel =
+              new EnsembleModel(this.mapModelListforModelReceived.get(modelIndex), modelWeightList);
+
+      File fileModel = new File("bagging-model-" + modelIndex);
+      try {
+        SerializeUtils.writeToFile(fileModel, baggingModel);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+
+      // test if the prediction using serialized model equals to original model
+      DoubleVector combinedVote = this.mapVotesforInstanceReceived.get((int) instanceIndex);
+      double[] prediction = combinedVote.getArrayCopy();
+      System.out.println("### predict: " + Arrays.toString(prediction));
+
+      return true;
+    }
+    return false;
   }
 
   @Override
@@ -168,8 +210,33 @@ public class PredictionCombinerProcessor implements Processor {
     this.mapCountsforInstanceReceived.put(instanceIndex, count + add);
   }
 
+  //for serialize
+  protected void addStatisticsForModelReceived(long modelIndex, Model model, int add) {
+    if (this.mapCountsforModelReceived == null) {
+      this.mapCountsforModelReceived = new HashMap<>();
+      this.mapModelListforModelReceived = new HashMap<>();
+    }
+    ArrayList<Model> modelList = this.mapModelListforModelReceived.get(modelIndex);
+    if (modelList == null) {
+      modelList = new ArrayList<>();
+    }
+    modelList.add(model);
+    this.mapModelListforModelReceived.put(modelIndex, modelList);
+
+    Integer count = this.mapCountsforModelReceived.get(modelIndex);
+    if (count == null) {
+      count = 0;
+    }
+    this.mapCountsforModelReceived.put(modelIndex, count + add);
+  }
+
   protected boolean hasAllVotesArrivedInstance(int instanceIndex) {
     return (this.mapCountsforInstanceReceived.get(instanceIndex) == this.ensembleSize);
+  }
+
+  // for serialize
+  protected boolean hasAllVotesArrivedModel(long modelIndex) {
+    return (this.mapCountsforModelReceived.get(modelIndex) == this.ensembleSize);
   }
 
   protected void clearStatisticsInstance(int instanceIndex) {
