@@ -308,10 +308,12 @@ final class ModelAggregatorProcessor implements Processor {
         HoeffdingTreeModel hoeffdingTreeModel =
                 new HoeffdingTreeModel(dataset, treeRoot); // for serialize
 
+        prediction = getVotesForInstance(inst, false);
+
         //Serialize data and VHT model
         if ((instancesCount != 0) && (instancesCount % sampleFrequency == 0)) {
-          File fileData = new File("vht-data-" + modelIndex);
-          File fileModel = new File("vht-model-" + modelIndex);
+          File fileData = new File("vht/vht-data-" + processorId + "-" + modelIndex);
+          File fileModel = new File("vht/vht-model-" + processorId + "-" + modelIndex);
           try {
             SerializeUtils.writeToFile(fileData, inst);
             SerializeUtils.writeToFile(fileModel, hoeffdingTreeModel);
@@ -323,14 +325,12 @@ final class ModelAggregatorProcessor implements Processor {
                   instContent.isLastEvent(), hoeffdingTreeModel,
                   modelIndex, instContent.getInstanceIndex(),
                   processorId, instContent.getEvaluationIndex())); // for serialize
-          modelIndex++; // for serialize
-        }
 
-        prediction = getVotesForInstance(inst, false);
-
-        // test if the prediction using serialized model equals to original model
-        if ((instancesCount != 0) && (instancesCount % sampleFrequency == 0)) {
+          // test if the prediction using serialized model equals to original model
+          System.out.println("### tree model " + modelIndex + " in processor " + processorId + " ###");
           System.out.println("### predict: " + Arrays.toString(prediction));
+
+          modelIndex++; // for serialize
         }
 
         instancesCount++; // for serialize

@@ -146,7 +146,7 @@ public class PredictionCombinerProcessor implements Processor {
       EnsembleModel baggingModel =
               new EnsembleModel(this.mapModelListforModelReceived.get(modelIndex), modelWeightList);
 
-      File fileModel = new File("bagging-model-" + modelIndex);
+      File fileModel = new File("bagging/bagging-model-" + modelIndex);
       try {
         SerializeUtils.writeToFile(fileModel, baggingModel);
       } catch (IOException e) {
@@ -156,6 +156,7 @@ public class PredictionCombinerProcessor implements Processor {
       // test if the prediction using serialized model equals to original model
       DoubleVector combinedVote = this.mapVotesforInstanceReceived.get((int) instanceIndex);
       double[] prediction = combinedVote.getArrayCopy();
+      System.out.println("### bagging model " + modelIndex + " ###");
       System.out.println("### predict: " + Arrays.toString(prediction));
 
       return true;

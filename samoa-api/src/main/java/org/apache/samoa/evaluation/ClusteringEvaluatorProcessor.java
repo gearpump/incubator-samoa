@@ -114,7 +114,7 @@ public class ClusteringEvaluatorProcessor implements Processor {
     }
 
     // Serialize evaluate data point
-    File file = new File("clu-data");
+    File file = new File("clu/clu-data");
     try {
       SerializeUtils.writeToFile(file, points);
     } catch (IOException e) {
