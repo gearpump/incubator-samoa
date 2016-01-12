@@ -126,7 +126,7 @@ public class PredictionCombinerProcessor implements Processor {
           inEvent.getClassId(), combinedVote.getArrayCopy(), inEvent.isLastEvent());
       outContentEvent.setEvaluationIndex(inEvent.getEvaluationIndex());
       outputStream.put(outContentEvent);
-      // clearStatisticsInstance(instanceIndex);
+      clearStatisticsInstance(instanceIndex);
       return true;
     }
     return false;
@@ -141,8 +141,8 @@ public class PredictionCombinerProcessor implements Processor {
 
     this.addStatisticsForModelReceived(modelIndex, model, 1);
     if (hasAllVotesArrivedModel(modelIndex)) {
-      ArrayList<Double> modelWeightList = new ArrayList<>(this.ensembleSize);
-      Collections.fill(modelWeightList, 1.0);
+      double[] modelWeightList = new double[this.ensembleSize];
+      Arrays.fill(modelWeightList, 1.0);
       EnsembleModel baggingModel =
               new EnsembleModel(this.mapModelListforModelReceived.get(modelIndex), modelWeightList);
 
