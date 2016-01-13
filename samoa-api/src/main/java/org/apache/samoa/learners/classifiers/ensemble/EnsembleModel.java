@@ -31,14 +31,13 @@ import java.util.Collections;
 
 public class EnsembleModel implements Model {
     private ArrayList<Model> modelList;
-    private double[] modelWeightList;
+    private ArrayList<Double> modelWeightList;
 
     public EnsembleModel() {
     }
 
-    public EnsembleModel(ArrayList<Model> modelList, double[] modelWeightList) {
+    public EnsembleModel(ArrayList<Model> modelList, ArrayList<Double> modelWeightList) {
         this.modelList = modelList;
-        this.modelWeightList = modelWeightList;
         this.modelWeightList = modelWeightList;
     }
 
@@ -50,7 +49,7 @@ public class EnsembleModel implements Model {
             DoubleVector vote = new DoubleVector(prediction);
             if (vote.sumOfValues() > 0.0) {
                 vote.normalize();
-                vote.scaleValues(modelWeightList[i]);
+                vote.scaleValues(modelWeightList.get(i));
                 combinedVote.addValues(vote);
             }
         }
@@ -68,9 +67,9 @@ public class EnsembleModel implements Model {
     public String toString() {
         return "EnsembleModel{ " +
                 "number of base model: " + modelList.size() +
-                ", number of weight: " + modelWeightList.length +
+                ", number of weight: " + modelWeightList.size() +
                 ", base model list: " + modelList +
-                ", weight list: " + Arrays.toString(modelWeightList) +
+                ", weight list: " + modelWeightList.toString() +
                 " }";
     }
 }

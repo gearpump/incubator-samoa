@@ -31,6 +31,7 @@ import java.util.Set;
 import org.apache.samoa.core.Processor;
 import org.apache.samoa.instances.Instances;
 import org.apache.samoa.learners.Learner;
+import org.apache.samoa.learners.SerializableLearner;
 import org.apache.samoa.learners.classifiers.SingleClassifier;
 import org.apache.samoa.topology.Stream;
 import org.apache.samoa.topology.TopologyBuilder;
@@ -93,6 +94,12 @@ public class Boosting implements Learner, Configurable {
 
     for (Stream subResultStream : classifier.getResultStreams()) {
       this.builder.connectInputKeyStream(subResultStream, predictionCombinerP);
+    }
+    // for serialize
+    if (classifier instanceof SerializableLearner) {
+      for (Stream subModelStream : ((SerializableLearner) classifier).getModelStreams()) {
+        this.builder.connectInputKeyStream(subModelStream, predictionCombinerP);
+      }
     }
 
     /* The testing stream. */

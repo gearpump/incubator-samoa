@@ -99,6 +99,7 @@ public class PredictionCombinerProcessor implements Processor {
 
   protected Map<Long, ArrayList<Model>> mapModelListforModelReceived; // for serialize
 
+  protected Map<Long, ArrayList<Double>> mapModelWeightListforModelReceived; // for serialize
   /**
    * On event.
    * 
@@ -138,13 +139,13 @@ public class PredictionCombinerProcessor implements Processor {
     Model model = event.getModel();
     long modelIndex = event.getModelIndex();
     long instanceIndex = event.getInstanceIndex();
+    int classifierIndex = event.getClassifierIndex();
 
-    this.addStatisticsForModelReceived(modelIndex, model, 1);
+    this.addStatisticsForModelReceived(modelIndex, classifierIndex, model, 1);
     if (hasAllVotesArrivedModel(modelIndex)) {
-      double[] modelWeightList = new double[this.ensembleSize];
-      Arrays.fill(modelWeightList, 1.0);
-      EnsembleModel baggingModel =
-              new EnsembleModel(this.mapModelListforModelReceived.get(modelIndex), modelWeightList);
+      EnsembleModel baggingModel = new EnsembleModel(
+              this.mapModelListforModelReceived.get(modelIndex),
+              this.mapModelWeightListforModelReceived.get(modelIndex));
 
       File fileModel = new File("bagging/bagging-model-" + modelIndex);
       try {
@@ -212,10 +213,11 @@ public class PredictionCombinerProcessor implements Processor {
   }
 
   //for serialize
-  protected void addStatisticsForModelReceived(long modelIndex, Model model, int add) {
+  protected void addStatisticsForModelReceived(long modelIndex, int classifierIndex, Model model, int add) {
     if (this.mapCountsforModelReceived == null) {
       this.mapCountsforModelReceived = new HashMap<>();
       this.mapModelListforModelReceived = new HashMap<>();
+      this.mapModelWeightListforModelReceived = new HashMap<>();
     }
     ArrayList<Model> modelList = this.mapModelListforModelReceived.get(modelIndex);
     if (modelList == null) {
@@ -223,6 +225,13 @@ public class PredictionCombinerProcessor implements Processor {
     }
     modelList.add(model);
     this.mapModelListforModelReceived.put(modelIndex, modelList);
+
+    ArrayList<Double> modelWeightList = this.mapModelWeightListforModelReceived.get(modelIndex);
+    if (modelWeightList == null) {
+      modelWeightList = new ArrayList<>();
+    }
+    modelWeightList.add(getEnsembleMemberWeight(classifierIndex));
+    this.mapModelWeightListforModelReceived.put(modelIndex, modelWeightList);
 
     Integer count = this.mapCountsforModelReceived.get(modelIndex);
     if (count == null) {
