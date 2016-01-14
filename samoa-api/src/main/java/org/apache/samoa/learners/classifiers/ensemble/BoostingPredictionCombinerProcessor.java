@@ -30,6 +30,7 @@ import java.util.Random;
 import org.apache.samoa.core.ContentEvent;
 import org.apache.samoa.instances.Instance;
 import org.apache.samoa.learners.InstanceContentEvent;
+import org.apache.samoa.learners.ModelContentEvent;
 import org.apache.samoa.learners.ResultContentEvent;
 import org.apache.samoa.moa.core.DoubleVector;
 import org.apache.samoa.moa.core.Utils;
@@ -57,6 +58,10 @@ public class BoostingPredictionCombinerProcessor extends PredictionCombinerProce
    */
   @Override
   public boolean process(ContentEvent event) {
+    // for serialize
+    if (event instanceof ModelContentEvent) {
+      return this.processModel((ModelContentEvent) event);
+    }
 
     ResultContentEvent inEvent = (ResultContentEvent) event;
     double[] prediction = inEvent.getClassVotes();

@@ -144,7 +144,7 @@ final public class LocalClustererProcessor implements Processor {
 
       if (instancesCount % this.sampleFrequency == 0) {
         logger.info("Trained model using {} events with classifier id {}", instancesCount, this.modelId); // getId());
-        String filePath = "clu-model";
+        String filePath = "clu/clu-model";
         File file = new File(filePath);
         CluStreamModel cluStreamModel =
                 new CluStreamModel(((ClustreamClustererAdapter) model).learner.getMicroClusteringResult());

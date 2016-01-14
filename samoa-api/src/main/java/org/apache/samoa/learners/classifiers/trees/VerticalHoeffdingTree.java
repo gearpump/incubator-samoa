@@ -26,6 +26,7 @@ import org.apache.samoa.core.Processor;
 import org.apache.samoa.instances.Instances;
 import org.apache.samoa.learners.AdaptiveLearner;
 import org.apache.samoa.learners.ClassificationLearner;
+import org.apache.samoa.learners.SerializableLearner;
 import org.apache.samoa.moa.classifiers.core.attributeclassobservers.AttributeClassObserver;
 import org.apache.samoa.moa.classifiers.core.attributeclassobservers.DiscreteAttributeClassObserver;
 import org.apache.samoa.moa.classifiers.core.attributeclassobservers.NumericAttributeClassObserver;
@@ -49,7 +50,7 @@ import com.google.common.collect.ImmutableSet;
  * 
  * @author Arinto Murdopo
  */
-public final class VerticalHoeffdingTree implements ClassificationLearner, AdaptiveLearner, Configurable {
+public final class VerticalHoeffdingTree implements SerializableLearner, ClassificationLearner, AdaptiveLearner, Configurable {
 
   private static final long serialVersionUID = -4937416312929984057L;
 
@@ -97,6 +98,7 @@ public final class VerticalHoeffdingTree implements ClassificationLearner, Adapt
       "Only allow binary splits.");
 
   private Stream resultStream;
+  private Stream modelStream; // for serialize
 
   private FilterProcessor filterProc;
 
@@ -126,6 +128,10 @@ public final class VerticalHoeffdingTree implements ClassificationLearner, Adapt
 
     this.resultStream = topologyBuilder.createStream(modelAggrProc);
     modelAggrProc.setResultStream(resultStream);
+
+    // for serialize
+    this.modelStream = topologyBuilder.createStream(modelAggrProc);
+    modelAggrProc.setModelStream(modelStream);
 
     Stream attributeStream = topologyBuilder.createStream(modelAggrProc);
     modelAggrProc.setAttributeStream(attributeStream);
@@ -158,6 +164,12 @@ public final class VerticalHoeffdingTree implements ClassificationLearner, Adapt
   @Override
   public Set<Stream> getResultStreams() {
     return ImmutableSet.of(this.resultStream);
+  }
+
+  // for serialize
+  @Override
+  public Set<Stream> getModelStreams() {
+      return ImmutableSet.of(this.modelStream);
   }
 
   protected ChangeDetector changeDetector;

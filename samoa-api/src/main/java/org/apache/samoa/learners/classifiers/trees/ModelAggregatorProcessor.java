@@ -41,6 +41,7 @@ import org.apache.samoa.instances.Instances;
 import org.apache.samoa.instances.InstancesHeader;
 import org.apache.samoa.learners.InstanceContent;
 import org.apache.samoa.learners.InstancesContentEvent;
+import org.apache.samoa.learners.ModelContentEvent;
 import org.apache.samoa.learners.ResultContentEvent;
 import org.apache.samoa.moa.classifiers.core.AttributeSplitSuggestion;
 import org.apache.samoa.moa.classifiers.core.driftdetection.ChangeDetector;
@@ -89,6 +90,8 @@ final class ModelAggregatorProcessor implements Processor {
   private Stream attributeStream;
   private Stream controlStream;
 
+  private Stream modelStream; // for serialize
+
   private transient ScheduledExecutorService executor;
 
   private final SplitCriterion splitCriterion;
@@ -99,7 +102,7 @@ final class ModelAggregatorProcessor implements Processor {
   private final long timeOut;
 
   private final long sampleFrequency = 100000;
-  private int testIndex = 0;
+  private int modelIndex = 0;
   private int instancesCount = 0;
 
   // private constructor based on Builder pattern
@@ -210,6 +213,7 @@ final class ModelAggregatorProcessor implements Processor {
     newProcessor.setResultStream(oldProcessor.resultStream);
     newProcessor.setAttributeStream(oldProcessor.attributeStream);
     newProcessor.setControlStream(oldProcessor.controlStream);
+    newProcessor.setModelStream(oldProcessor.modelStream); // for serialize
     return newProcessor;
   }
 
@@ -243,6 +247,11 @@ final class ModelAggregatorProcessor implements Processor {
 
   void sendToControlStream(ContentEvent event) {
     this.controlStream.put(event);
+  }
+
+  // for serialize
+  void setModelStream(Stream modelStream) {
+    this.modelStream = modelStream;
   }
 
   /**
@@ -296,28 +305,35 @@ final class ModelAggregatorProcessor implements Processor {
       // boolean testAndTrain = isTraining; //Train after testing
       double[] prediction = null;
       if (isTesting) {
+        HoeffdingTreeModel hoeffdingTreeModel =
+                new HoeffdingTreeModel(dataset, treeRoot); // for serialize
+
+        prediction = getVotesForInstance(inst, false);
 
         //Serialize data and VHT model
         if ((instancesCount != 0) && (instancesCount % sampleFrequency == 0)) {
-          File fileData = new File("vht-data-" + testIndex);
-          File fileModel = new File("vht-model-" + testIndex);
+          File fileData = new File("vht/vht-data-" + processorId + "-" + modelIndex);
+          File fileModel = new File("vht/vht-model-" + processorId + "-" + modelIndex);
           try {
             SerializeUtils.writeToFile(fileData, inst);
-            HoeffdingTreeModel hoeffdingTreeModel =
-                    new HoeffdingTreeModel(dataset, treeRoot);
             SerializeUtils.writeToFile(fileModel, hoeffdingTreeModel);
           } catch (IOException e) {
             e.printStackTrace();
           }
-          testIndex++;
-        }
 
-        prediction = getVotesForInstance(inst, false);
+          this.modelStream.put(new ModelContentEvent(
+                  instContent.isLastEvent(), hoeffdingTreeModel,
+                  modelIndex, instContent.getInstanceIndex(),
+                  processorId, instContent.getEvaluationIndex())); // for serialize
 
-        if ((instancesCount != 0) && (instancesCount % sampleFrequency == 0)) {
+          // test if the prediction using serialized model equals to original model
+          System.out.println("### tree model " + modelIndex + " in processor " + processorId + " ###");
           System.out.println("### predict: " + Arrays.toString(prediction));
+
+          modelIndex++; // for serialize
         }
-        instancesCount++;
+
+        instancesCount++; // for serialize
         this.resultStream.put(newResultContentEvent(prediction, instContent));
       }
 
