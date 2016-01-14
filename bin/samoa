@@ -216,7 +216,7 @@ elif [ $PLATFORM = 'GEARPUMP' ]; then
 
 	if [ ! -f $2 ];then
 	    echo "$2 does not exist!"
-	    echo "Please use a valid jar file for Storm execution"
+	    echo "Please use a valid jar file for Gearpump execution"
 	    exit -1
 	fi
 

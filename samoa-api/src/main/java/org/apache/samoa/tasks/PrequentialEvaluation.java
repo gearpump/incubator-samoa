@@ -31,6 +31,7 @@ import org.apache.samoa.evaluation.RegressionPerformanceEvaluator;
 import org.apache.samoa.learners.ClassificationLearner;
 import org.apache.samoa.learners.Learner;
 import org.apache.samoa.learners.RegressionLearner;
+import org.apache.samoa.learners.SerializableLearner;
 import org.apache.samoa.learners.classifiers.trees.VerticalHoeffdingTree;
 import org.apache.samoa.moa.streams.InstanceStream;
 import org.apache.samoa.moa.streams.generators.RandomTreeGenerator;
@@ -174,6 +175,12 @@ public class PrequentialEvaluation implements Task, Configurable {
     builder.addProcessor(evaluator);
     for (Stream evaluatorPiInputStream : classifier.getResultStreams()) {
       builder.connectInputShuffleStream(evaluatorPiInputStream, evaluator);
+    }
+    // for serialize
+    if (classifier instanceof SerializableLearner) {
+      for (Stream modelStream : ((SerializableLearner) classifier).getModelStreams()) {
+        builder.connectInputShuffleStream(modelStream, evaluator);
+      }
     }
 
     logger.debug("Successfully instantiating EvaluatorProcessor");
