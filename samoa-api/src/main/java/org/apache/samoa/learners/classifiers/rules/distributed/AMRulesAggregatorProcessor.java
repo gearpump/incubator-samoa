@@ -20,6 +20,8 @@ package org.apache.samoa.learners.classifiers.rules.distributed;
  * #L%
  */
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,6 +32,7 @@ import org.apache.samoa.instances.Instance;
 import org.apache.samoa.instances.Instances;
 import org.apache.samoa.learners.InstanceContentEvent;
 import org.apache.samoa.learners.ResultContentEvent;
+import org.apache.samoa.learners.classifiers.rules.AMRulesModel;
 import org.apache.samoa.learners.classifiers.rules.common.ActiveRule;
 import org.apache.samoa.learners.classifiers.rules.common.LearningRule;
 import org.apache.samoa.learners.classifiers.rules.common.PassiveRule;
@@ -39,6 +42,7 @@ import org.apache.samoa.moa.classifiers.rules.core.attributeclassobservers.FIMTD
 import org.apache.samoa.moa.classifiers.rules.core.voting.ErrorWeightedVote;
 import org.apache.samoa.moa.classifiers.rules.core.voting.InverseErrorWeightedVote;
 import org.apache.samoa.moa.classifiers.rules.core.voting.UniformWeightedVote;
+import org.apache.samoa.moa.core.SerializeUtils;
 import org.apache.samoa.topology.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,6 +97,10 @@ public class AMRulesAggregatorProcessor implements Processor {
   protected FIMTDDNumericAttributeClassLimitObserver numericObserver;
   protected int voteType;
 
+  // for serialize
+  private final long sampleFrequency = 100000;
+  private int modelIndex = 0;
+  private int instancesCount = 0;
   /*
    * Constructor
    */
@@ -147,6 +155,23 @@ public class AMRulesAggregatorProcessor implements Processor {
     boolean continuePrediction = instanceEvent.isTesting();
     boolean continueTraining = instanceEvent.isTraining();
 
+    //Serialize data and AMR model
+    if (instanceEvent.isTesting()) {
+      AMRulesModel amRulesModel = new AMRulesModel(defaultRule, ruleSet,
+              newErrorWeightedVote(), unorderedRules); // for serialize
+
+      if ((instancesCount != 0) && (instancesCount % sampleFrequency == 0)) {
+        File fileData = new File("amr/amr-data-" + processorId + "-" + modelIndex);
+        File fileModel = new File("amr/amr-model-" + processorId + "-" + modelIndex);
+        try {
+          SerializeUtils.writeToFile(fileData, instance);
+          SerializeUtils.writeToFile(fileModel, amRulesModel);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      }
+    }
+
     ErrorWeightedVote errorWeightedVote = newErrorWeightedVote();
     Iterator<PassiveRule> ruleIterator = this.ruleSet.iterator();
     while (ruleIterator.hasNext()) {
@@ -180,16 +205,30 @@ public class AMRulesAggregatorProcessor implements Processor {
       }
     }
 
+    double[] prediction = null; // for test serialize
+
     if (predictionCovered) {
       // Combined prediction
+      prediction = errorWeightedVote.computeWeightedVote(); // for test serialize
       ResultContentEvent rce = newResultContentEvent(errorWeightedVote.computeWeightedVote(), instanceEvent);
       resultStream.put(rce);
     }
     else if (instanceEvent.isTesting()) {
       // predict with default rule
+      prediction = defaultRule.getPrediction(instance); // for test serialize
       double[] vote = defaultRule.getPrediction(instance);
       ResultContentEvent rce = newResultContentEvent(vote, instanceEvent);
       resultStream.put(rce);
+    }
+
+    // test if the prediction using serialized model equals to original model
+    if (predictionCovered || instanceEvent.isTesting()) {
+      if ((instancesCount != 0) && (instancesCount % sampleFrequency == 0)) {
+        System.out.println("### amr model " + modelIndex + " in processor " + processorId + " ###");
+        System.out.println("### predict: " + Arrays.toString(prediction));
+        modelIndex++; // for serialize
+      }
+      instancesCount++; // for serialize
     }
 
     if (!trainingCovered && instanceEvent.isTraining()) {
