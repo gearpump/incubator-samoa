@@ -21,20 +21,23 @@ package org.apache.samoa.topology.impl.gearpump;
  */
 
 import org.apache.samoa.core.ContentEvent;
+import org.apache.samoa.utils.PartitioningScheme;
 
 import java.io.Serializable;
 
 public class GearpumpMessage implements Serializable {
     private ContentEvent event;
+    private PartitioningScheme scheme;
     private String targetId;
 
     public GearpumpMessage() {
-        this(null, null);
+        this(null, null, null);
     }
 
-    public GearpumpMessage(ContentEvent event, String targetId) {
+    public GearpumpMessage(ContentEvent event, String targetId, PartitioningScheme scheme) {
         this.event = event;
         this.targetId = targetId;
+        this.scheme = scheme;
     }
 
     public String getTargetId() {
@@ -51,5 +54,13 @@ public class GearpumpMessage implements Serializable {
 
     public void setEvent(ContentEvent event) {
         this.event = event;
+    }
+
+    public PartitioningScheme getScheme() {
+        return scheme;
+    }
+
+    public void setScheme(PartitioningScheme scheme) {
+        this.scheme = scheme;
     }
 }
