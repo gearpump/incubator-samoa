@@ -56,7 +56,7 @@ public class EntranceProcessingItemTask extends Task {
     public void onNext(Message msg) {
         if (entranceProcessor.hasNext()) {
             GearpumpMessage message =
-                    new GearpumpMessage(entranceProcessor.nextEvent(), outputStream.getTargetId());
+                    new GearpumpMessage(entranceProcessor.nextEvent(), outputStream.getTargetId(), outputStream.getScheme());
             taskContext.output(new Message(message, System.currentTimeMillis()));
         }
         self().tell(new Message("continue", System.currentTimeMillis()), self());

@@ -20,16 +20,12 @@ package org.apache.samoa.topology.impl.gearpump;
  * #L%
  */
 
-import io.gearpump.partitioner.BroadcastPartitioner;
-import io.gearpump.partitioner.HashPartitioner;
 import io.gearpump.partitioner.Partitioner;
-import io.gearpump.partitioner.ShufflePartitioner;
 import io.gearpump.streaming.Processor;
 import io.gearpump.util.Graph;
 import org.apache.samoa.topology.AbstractTopology;
 import org.apache.samoa.topology.IProcessingItem;
 import org.apache.samoa.topology.Stream;
-import org.apache.samoa.utils.PartitioningScheme;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -61,25 +57,13 @@ public class Topology extends AbstractTopology {
         }
 
         Set<Stream> streams = getStreams();
+        Partitioner partitioner = new SamoaMessagePartitioner();
         for (Stream stream : streams) {
             GearpumpStream gearpumpStream = (GearpumpStream) stream;
             IProcessingItem sourcePi = gearpumpStream.getSourceProcessingItem();
             IProcessingItem targetPi = gearpumpStream.getTargetPi();
             Processor sourceProcessor = piToProcessor.get(sourcePi);
             Processor targetProcessor = piToProcessor.get(targetPi);
-            PartitioningScheme scheme = gearpumpStream.getScheme();
-            Partitioner partitioner = null;
-            switch (scheme) {
-                case SHUFFLE:
-                    partitioner = new ShufflePartitioner();
-                    break;
-                case GROUP_BY_KEY:
-                    partitioner = new HashPartitioner();
-                    break;
-                case BROADCAST:
-                    partitioner = new BroadcastPartitioner();
-                    break;
-            }
             graph.addEdge(sourceProcessor, partitioner, targetProcessor);
         }
     }

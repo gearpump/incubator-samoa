@@ -70,7 +70,7 @@ public class GearpumpStream extends AbstractStream implements Serializable {
 
     @Override
     public void put(ContentEvent event) {
-        GearpumpMessage message = new GearpumpMessage(event, targetId);
+        GearpumpMessage message = new GearpumpMessage(event, targetId, scheme);
         taskContext.output(new Message(message, System.currentTimeMillis()));
     }
 
