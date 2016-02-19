@@ -2,12 +2,12 @@ package org.apache.samoa.learners.classifiers.ensemble;
 
 import org.apache.samoa.instances.Instance;
 import org.apache.samoa.instances.Utils;
+import org.apache.samoa.learners.DataInstance;
+import org.apache.samoa.learners.InstanceUtils;
 import org.apache.samoa.learners.Model;
 import org.apache.samoa.moa.core.DoubleVector;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 
 /*
  * #%L
@@ -33,19 +33,16 @@ public class EnsembleModel implements Model {
     private ArrayList<Model> modelList;
     private ArrayList<Double> modelWeightList;
 
-    public EnsembleModel() {
-    }
-
     public EnsembleModel(ArrayList<Model> modelList, ArrayList<Double> modelWeightList) {
         this.modelList = modelList;
         this.modelWeightList = modelWeightList;
     }
 
     @Override
-    public double[] predict(Instance inst) {
+    public double[] predict(DataInstance dataInstance) {
         DoubleVector combinedVote = new DoubleVector();
         for (int i = 0; i < modelList.size(); i++) {
-            double[] prediction = modelList.get(i).predict(inst);
+            double[] prediction = modelList.get(i).predict(dataInstance);
             DoubleVector vote = new DoubleVector(prediction);
             if (vote.sumOfValues() > 0.0) {
                 vote.normalize();
@@ -56,9 +53,13 @@ public class EnsembleModel implements Model {
         return combinedVote.getArrayCopy();
     }
 
-    public boolean evaluate(Instance inst) {
+    /*
+        Predict the class of an input data instance, and evaluate if it is the true class.
+     */
+    public boolean evaluate(DataInstance dataInstance) {
+        Instance inst = InstanceUtils.convertToSamoaInstance(dataInstance);
         int trueClass = (int) inst.classValue();
-        double[]  prediction = this.predict(inst);
+        double[]  prediction = this.predict(dataInstance);
         int predictedClass = Utils.maxIndex(prediction);
         return trueClass == predictedClass;
     }

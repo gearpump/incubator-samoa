@@ -20,9 +20,8 @@ package org.apache.samoa.learners;
  * #L%
  */
 
-
 import java.io.Serializable;
 
-public interface Model extends Serializable {
-    double[] predict(DataInstance dataInstance);
+public interface DataInstance extends Serializable {
+
 }

@@ -24,6 +24,8 @@ package org.apache.samoa.learners.classifiers.trees;
 import org.apache.samoa.instances.Instance;
 import org.apache.samoa.instances.Instances;
 import org.apache.samoa.instances.Utils;
+import org.apache.samoa.learners.DataInstance;
+import org.apache.samoa.learners.InstanceUtils;
 import org.apache.samoa.learners.Model;
 
 public class HoeffdingTreeModel implements Model {
@@ -35,12 +37,10 @@ public class HoeffdingTreeModel implements Model {
         this.treeRoot = treeRoot;
     }
 
-    public HoeffdingTreeModel() {
-    }
-
     @Override
-    public double[] predict(Instance inst) {
+    public double[] predict(DataInstance dataInstance) {
         double[] prediction;
+        Instance inst = InstanceUtils.convertToSamoaInstance(dataInstance);
         // inst.setDataset(dataset);
 
         FoundNode foundNode;
@@ -55,13 +55,19 @@ public class HoeffdingTreeModel implements Model {
             int numClasses = dataset.numClasses();
             prediction = new double[numClasses];
         }
+
         return prediction;
     }
 
-    public boolean evaluate(Instance inst) {
+    /*
+        Predict the class of an input data instance, and evaluate if it is the true class.
+     */
+    public boolean evaluate(DataInstance dataInstance) {
+        Instance inst = InstanceUtils.convertToSamoaInstance(dataInstance);
         int trueClass = (int) inst.classValue();
-        double[]  prediction = this.predict(inst);
+        double[]  prediction = this.predict(dataInstance);
         int predictedClass = Utils.maxIndex(prediction);
+
         return trueClass == predictedClass;
     }
 

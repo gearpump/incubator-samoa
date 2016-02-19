@@ -21,6 +21,8 @@ package org.apache.samoa.learners.classifiers.rules;
  */
 
 import org.apache.samoa.instances.Instance;
+import org.apache.samoa.learners.DataInstance;
+import org.apache.samoa.learners.InstanceUtils;
 import org.apache.samoa.learners.Model;
 import org.apache.samoa.learners.classifiers.rules.common.ActiveRule;
 import org.apache.samoa.learners.classifiers.rules.common.PassiveRule;
@@ -34,9 +36,6 @@ public class AMRulesModel implements Model {
     private ErrorWeightedVote errorWeightedVote;
     private boolean unorderedRules;
 
-    public AMRulesModel() {
-    }
-
     public AMRulesModel(ActiveRule defaultRule, List<PassiveRule> ruleSet,
                         ErrorWeightedVote errorWeightedVote, boolean unorderedRules) {
         this.defaultRule = defaultRule;
@@ -46,7 +45,8 @@ public class AMRulesModel implements Model {
     }
 
     @Override
-    public double[] predict(Instance inst) {
+    public double[] predict(DataInstance dataInstance) {
+        Instance inst = InstanceUtils.convertToSamoaInstance(dataInstance);
         double[] prediction;
         boolean predictionCovered = false;
 
