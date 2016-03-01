@@ -78,8 +78,8 @@ public class CluStreamModelTest extends TestCase {
         task.init();
         SimpleEngine.submitTopology(task.getTopology());
 
-        File fileModel = new File("clu/clu-model");
-        File fileData = new File("clu/clu-data");
+        File fileModel = new File(BASE_DIR + "/clu-model");
+        File fileData = new File(BASE_DIR + "/clu-data");
 
         ArrayList<DataPoint> points = (ArrayList<DataPoint>) SerializeUtils.readFromFile(fileData);
         CluStreamModel cluStreamModel  = (CluStreamModel) SerializeUtils.readFromFile(fileModel);
