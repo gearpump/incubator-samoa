@@ -20,40 +20,28 @@ package org.apache.samoa.learners.clusterers;
  * #L%
  */
 
-import org.apache.samoa.learners.DataInstance;
+import java.io.Serializable;
 
-public class ClusterDataInstance implements DataInstance {
-    private int numAtts;
+public class ClusterDataInstance implements Serializable {
+    private int numberFeatures;
     private int timeStamp;
     private double[] data;
 
-    public ClusterDataInstance(int numAtts, int timeStamp, double[] data) {
-        this.numAtts = numAtts;
+    public ClusterDataInstance(int numberFeatures, int timeStamp, double[] data) {
+        this.numberFeatures = numberFeatures;
         this.timeStamp = timeStamp;
         this.data = data;
     }
 
-    public int getNumAtts() {
-        return numAtts;
-    }
-
-    public void setNumAtts(int numAtts) {
-        this.numAtts = numAtts;
+    public int getNumberFeatures() {
+        return numberFeatures;
     }
 
     public int getTimeStamp() {
         return timeStamp;
     }
 
-    public void setTimeStamp(int timeStamp) {
-        this.timeStamp = timeStamp;
-    }
-
     public double[] getData() {
         return data;
-    }
-
-    public void setData(double[] data) {
-        this.data = data;
     }
 }

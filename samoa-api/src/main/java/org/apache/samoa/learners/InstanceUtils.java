@@ -21,92 +21,20 @@ package org.apache.samoa.learners;
  */
 
 import org.apache.samoa.instances.*;
-import org.apache.samoa.learners.classifiers.NominalDataInstance;
-import org.apache.samoa.learners.classifiers.NumericDataInstance;
+import org.apache.samoa.learners.classifiers.ClassificationDataInstance;
 import org.apache.samoa.learners.clusterers.ClusterDataInstance;
 import org.apache.samoa.moa.core.DataPoint;
 import org.apache.samoa.moa.core.FastVector;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class InstanceUtils {
-    static private InstancesHeader getNumericInstanceHeader(NumericDataInstance numericDataInstance) {
-        FastVector<Attribute> attributes = new FastVector<>();
 
-        for (int i = 0; i < numericDataInstance.getNumNumerics(); i++) {
-            attributes.addElement(new Attribute("numeric" + (i + 1)));
-        }
-
-        FastVector<String> classLabels = new FastVector<>();
-        for (int i = 0; i < numericDataInstance.getNumClasses(); i++) {
-            classLabels.addElement("class" + (i + 1));
-        }
-        attributes.addElement(new Attribute("class", classLabels));
-
-        InstancesHeader instancesHeader = new InstancesHeader(
-                new Instances(null, attributes, 0));
-        instancesHeader.setClassIndex(instancesHeader.numAttributes() - 1);
-
-        return instancesHeader;
-    }
-
-    static private Instance convertNumericInstance(NumericDataInstance numericDataInstance) {
-        InstancesHeader header = InstanceUtils.getNumericInstanceHeader(numericDataInstance);
-        Instance inst = new DenseInstance(header.numAttributes());
-
-        for (int i = 0; i < numericDataInstance.getNumNumerics(); i++) {
-            inst.setValue(i, numericDataInstance.getData()[i]);
-        }
-
-        inst.setDataset(header);
-        inst.setClassValue(numericDataInstance.getTrueClass());
-
-        return inst;
-    }
-
-    static private InstancesHeader getNominalInstanceHeader(NominalDataInstance nominalDataInstance) {
-        FastVector<Attribute> attributes = new FastVector<>();
-
-        for (int i = 0; i < nominalDataInstance.getNumNominals(); i++) {
-            FastVector<String> nominalAttVals = new FastVector<>();
-            for (int j = 0; j < nominalDataInstance.getNumValsPerNominal()[i]; j++) {
-                nominalAttVals.addElement("value" + (j + 1));
-            }
-            attributes.addElement(new Attribute("nominal" + (i + 1),
-                    nominalAttVals));
-        }
-
-        FastVector<String> classLabels = new FastVector<>();
-        for (int i = 0; i < nominalDataInstance.getNumClasses(); i++) {
-            classLabels.addElement("class" + (i + 1));
-        }
-        attributes.addElement(new Attribute("class", classLabels));
-
-        InstancesHeader instancesHeader = new InstancesHeader(
-                new Instances(null, attributes, 0));
-        instancesHeader.setClassIndex(instancesHeader.numAttributes() - 1);
-
-        return instancesHeader;
-    }
-
-    static private Instance convertNominalInstance(NominalDataInstance nominalDataInstance) {
-        InstancesHeader header = InstanceUtils.getNominalInstanceHeader(nominalDataInstance);
-        Instance inst = new DenseInstance(header.numAttributes());
-
-        for (int i = 0; i < nominalDataInstance.getNumNominals(); i++) {
-            inst.setValue(i, nominalDataInstance.getData()[i]);
-        }
-
-        inst.setDataset(header);
-        inst.setClassValue(nominalDataInstance.getTrueClass());
-
-        return inst;
-    }
-
-    static private InstancesHeader getClusterInstanceHeader(ClusterDataInstance clusterDataInstance) {
+    private static InstancesHeader getClusterInstanceHeader(ClusterDataInstance dataInstance) {
         ArrayList<Attribute> attributes = new ArrayList<>();
 
-        for (int i = 0; i < clusterDataInstance.getNumAtts(); i++) {
+        for (int i = 0; i < dataInstance.getNumberFeatures(); i++) {
             attributes.add(new Attribute("att" + (i + 1)));
         }
 
@@ -119,21 +47,96 @@ public class InstanceUtils {
         return instancesHeader;
     }
 
-    static private Instance convertClusterInstance(ClusterDataInstance clusterDataInstance) {
-        Instance inst = new DenseInstance(1.0, clusterDataInstance.getData());
-        inst.setDataset(InstanceUtils.getClusterInstanceHeader(clusterDataInstance));
-        return new DataPoint(inst, clusterDataInstance.getTimeStamp());
+    private static InstancesHeader getClassificationInstanceHeader(ClassificationDataInstance dataInstance) {
+        FastVector<Attribute> attributes = new FastVector<>();
+
+        for (int i = 0; i < dataInstance.getNumberNominalFeatures(); i++) {
+            FastVector<String> nominalAttVals = new FastVector<>();
+            for (int j = 0; j < dataInstance.getNumberValsPerNominalFeature()[i]; j++) {
+                nominalAttVals.addElement("value" + (j + 1));
+            }
+            attributes.addElement(new Attribute("nominal" + (i + 1),
+                    nominalAttVals));
+        }
+
+        for (int i = 0; i < dataInstance.getNumberNumericFeatures(); i++) {
+            attributes.addElement(new Attribute("numeric" + (i + 1)));
+        }
+
+        FastVector<String> classLabels = new FastVector<>();
+        for (int i = 0; i < dataInstance.getNumberLabels(); i++) {
+            classLabels.addElement("class" + (i + 1));
+        }
+        attributes.addElement(new Attribute("class", classLabels));
+
+        InstancesHeader instancesHeader = new InstancesHeader(
+                new Instances(null, attributes, 0));
+        instancesHeader.setClassIndex(instancesHeader.numAttributes() - 1);
+
+        return instancesHeader;
     }
 
-    static public Instance convertToSamoaInstance(DataInstance dataInstance) {
-        if (dataInstance instanceof NumericDataInstance) {
-            return InstanceUtils.convertNumericInstance((NumericDataInstance) dataInstance);
-        } else if (dataInstance instanceof NominalDataInstance) {
-            return InstanceUtils.convertNominalInstance((NominalDataInstance) dataInstance);
-        } else if (dataInstance instanceof ClusterDataInstance) {
-            return InstanceUtils.convertClusterInstance((ClusterDataInstance) dataInstance);
-        } else {
-            throw new Error("Invalid input class!");
+    /**
+     * convert ClassificationDataInstance to SAMOA Instance
+     */
+    public static Instance convertClassificationDataInstance(ClassificationDataInstance dataInstance) {
+        InstancesHeader header = InstanceUtils.getClassificationInstanceHeader(dataInstance);
+        Instance inst = new DenseInstance(header.numAttributes());
+
+        int numNomFeatures = dataInstance.getNumberNominalFeatures();
+        int numNumFeatures = dataInstance.getNumberNumericFeatures();
+
+        for (int i = 0; i < numNomFeatures + numNumFeatures; i++) {
+            if (i < numNomFeatures) {
+                inst.setValue(i, dataInstance.getNominalData()[i]);
+            } else {
+                inst.setValue(i, dataInstance.getNumericData()[i - numNomFeatures]);
+            }
         }
+
+        inst.setDataset(header);
+        inst.setClassValue(dataInstance.getTrueLabel());
+
+        return inst;
+    }
+
+    /**
+     * convert SAMOA Instance to ClassificationDataInstance
+     */
+    public static ClassificationDataInstance reConvertClassificationDataInstance(
+            Instance inst, int numberNominalFeatures, int numberNumericFeatures) {
+        double[] nominalDataTmp = Arrays.copyOfRange(inst.toDoubleArray(), 0, numberNominalFeatures);
+        int[] nominalData = new int[nominalDataTmp.length];
+        for (int j = 0; j < nominalData.length; j++) {
+            nominalData[j] = (int) nominalDataTmp[j];
+        }
+
+        double[] numericData = Arrays.copyOfRange(
+                inst.toDoubleArray(), numberNominalFeatures,
+                inst.toDoubleArray().length - 1);
+
+        int[] numValsPerNominal = new int[nominalData.length];
+        Arrays.fill(numValsPerNominal, inst.attribute(0).numValues());
+
+        return new ClassificationDataInstance(
+                numberNumericFeatures, numericData, numberNominalFeatures,
+                numValsPerNominal, nominalData, inst.numClasses(), (int) inst.classValue());
+    }
+
+    /**
+     * convert ClusterDataInstance to SAMOA Instance
+     */
+    public static Instance convertClusterDataInstance(ClusterDataInstance dataInstance) {
+        Instance inst = new DenseInstance(1.0, dataInstance.getData());
+        inst.setDataset(InstanceUtils.getClusterInstanceHeader(dataInstance));
+        return new DataPoint(inst, dataInstance.getTimeStamp());
+    }
+
+    /**
+     * convert SAMOA Instance to ClusterDataInstance
+     */
+    public static ClusterDataInstance reConvertClusterDataInstance(DataPoint point) {
+        double[] data = point.toDoubleArray();
+        return new ClusterDataInstance(data.length, point.getTimestamp(), data);
     }
 }

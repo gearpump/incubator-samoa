@@ -27,9 +27,8 @@ import com.github.javacliparser.Option;
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.samoa.instances.Instance;
-import org.apache.samoa.learners.DataInstance;
-import org.apache.samoa.learners.classifiers.NominalDataInstance;
-import org.apache.samoa.learners.classifiers.NumericDataInstance;
+import org.apache.samoa.learners.InstanceUtils;
+import org.apache.samoa.learners.classifiers.ClassificationDataInstance;
 import org.apache.samoa.learners.classifiers.trees.HoeffdingTreeModel;
 import org.apache.samoa.moa.core.SerializeUtils;
 import org.apache.samoa.tasks.Task;
@@ -46,14 +45,13 @@ public class HoeffdingTreeModelTest extends TestCase {
     private static final String BASE_DIR = "vht";
     private static final int NUM_MODEL_IN_DIR = 10;
 
-    private static final String CLISTRING_NUM =
+    private static final int numberNumericFeatures = 10;
+    private static final int numberNominalFeatures = 10;
+    private static final String CLISTRING =
             "PrequentialEvaluation -i 1000000 -f 100000 " +
                     "-l (classifiers.trees.VerticalHoeffdingTree -p 4) " +
-                    "-s (generators.RandomTreeGenerator -c 2 -o 0 -u 10)";
-    private static final String CLISTRING_NOM =
-            "PrequentialEvaluation -i 1000000 -f 100000 " +
-                    "-l (classifiers.trees.VerticalHoeffdingTree -p 4) " +
-                    "-s (generators.RandomTreeGenerator -c 2 -o 10 -u 0)";
+                    "-s (generators.RandomTreeGenerator -c 2 -o " +
+                    numberNominalFeatures + " -u " + numberNumericFeatures +")";
 
     private static final String SUPPRESS_STATUS_OUT_MSG = "Suppress the task status output. Normally it is sent to stderr.";
     private static final String SUPPRESS_RESULT_OUT_MSG = "Suppress the task result output. Normally it is sent to stdout.";
@@ -76,11 +74,11 @@ public class HoeffdingTreeModelTest extends TestCase {
     }
 
     @Test
-    public void testVHTNumber() throws Exception {
+    public void testHoeffdingTreeModel() throws Exception {
         FileUtils.forceDeleteOnExit(new File(BASE_DIR));
         FileUtils.forceMkdir(new File(BASE_DIR));
 
-        Task task = ClassOption.cliStringToObject(CLISTRING_NUM, Task.class, extraOptions);
+        Task task = ClassOption.cliStringToObject(CLISTRING, Task.class, extraOptions);
         task.setFactory(new SimpleComponentFactory());
         task.init();
         SimpleEngine.submitTopology(task.getTopology());
@@ -93,44 +91,8 @@ public class HoeffdingTreeModelTest extends TestCase {
             Instance inst = (Instance) SerializeUtils.readFromFile(fileData);
             System.out.println("=== model: " + i + " ===");
 
-            double[] data = Arrays.copyOfRange(inst.toDoubleArray(), 0, inst.toDoubleArray().length - 1);
-
-            DataInstance dataInstance = new NumericDataInstance(data.length,
-                    inst.numClasses(), inst.classValue(), data);
-
-            System.out.println(Arrays.toString(htm.predict(dataInstance)));
-            System.out.println("true predict: " + (int) inst.classValue());
-            System.out.println("predict: " + htm.evaluate(dataInstance));
-        }
-
-        FileUtils.forceDeleteOnExit(new File(BASE_DIR));
-    }
-
-    @Test
-    public void testVHTNominal() throws Exception {
-        FileUtils.forceDeleteOnExit(new File(BASE_DIR));
-        FileUtils.forceMkdir(new File(BASE_DIR));
-
-        Task task = ClassOption.cliStringToObject(CLISTRING_NOM, Task.class, extraOptions);
-        task.setFactory(new SimpleComponentFactory());
-        task.init();
-        SimpleEngine.submitTopology(task.getTopology());
-
-        for (int i = 0; i < NUM_MODEL_IN_DIR; i++) {
-            File fileModel = new File(BASE_DIR + "/vht-model-0-" + i);
-            File fileData = new File(BASE_DIR + "/vht-data-0-" + i);
-
-            HoeffdingTreeModel htm = (HoeffdingTreeModel) SerializeUtils.readFromFile(fileModel);
-            Instance inst = (Instance) SerializeUtils.readFromFile(fileData);
-            System.out.println("=== model: " + i + " ===");
-
-            double[] data = Arrays.copyOfRange(inst.toDoubleArray(), 0, inst.toDoubleArray().length - 1);
-
-            int[] numValsPerNominal = new int[data.length];
-            Arrays.fill(numValsPerNominal, inst.attribute(0).numValues());
-
-            DataInstance dataInstance = new NominalDataInstance(data.length, inst.numClasses(),
-                    inst.classValue(), numValsPerNominal, data);
+            ClassificationDataInstance dataInstance =
+                    InstanceUtils.reConvertClassificationDataInstance(inst,numberNominalFeatures, numberNumericFeatures);
 
             System.out.println(Arrays.toString(htm.predict(dataInstance)));
             System.out.println("true predict: " + (int) inst.classValue());

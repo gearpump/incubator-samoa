@@ -24,11 +24,11 @@ package org.apache.samoa.learners.classifiers.trees;
 import org.apache.samoa.instances.Instance;
 import org.apache.samoa.instances.Instances;
 import org.apache.samoa.instances.Utils;
-import org.apache.samoa.learners.DataInstance;
 import org.apache.samoa.learners.InstanceUtils;
-import org.apache.samoa.learners.Model;
+import org.apache.samoa.learners.classifiers.ClassificationDataInstance;
+import org.apache.samoa.learners.classifiers.ClassificationModel;
 
-public class HoeffdingTreeModel implements Model {
+public class HoeffdingTreeModel implements ClassificationModel {
     private Instances dataset;
     private Node treeRoot;
 
@@ -38,9 +38,9 @@ public class HoeffdingTreeModel implements Model {
     }
 
     @Override
-    public double[] predict(DataInstance dataInstance) {
+    public double[] predict(ClassificationDataInstance dataInstance) {
         double[] prediction;
-        Instance inst = InstanceUtils.convertToSamoaInstance(dataInstance);
+        Instance inst = InstanceUtils.convertClassificationDataInstance(dataInstance);
         // inst.setDataset(dataset);
 
         FoundNode foundNode;
@@ -59,11 +59,11 @@ public class HoeffdingTreeModel implements Model {
         return prediction;
     }
 
-    /*
-        Predict the class of an input data instance, and evaluate if it is the true class.
+    /**
+     * Predict the class of an input data instance, and evaluate if it is the true class.
      */
-    public boolean evaluate(DataInstance dataInstance) {
-        Instance inst = InstanceUtils.convertToSamoaInstance(dataInstance);
+    public boolean evaluate(ClassificationDataInstance dataInstance) {
+        Instance inst = InstanceUtils.convertClassificationDataInstance(dataInstance);
         int trueClass = (int) inst.classValue();
         double[]  prediction = this.predict(dataInstance);
         int predictedClass = Utils.maxIndex(prediction);

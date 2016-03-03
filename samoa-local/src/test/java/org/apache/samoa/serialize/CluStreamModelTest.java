@@ -27,7 +27,7 @@ import com.github.javacliparser.Option;
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.samoa.evaluation.measures.SSQ;
-import org.apache.samoa.learners.DataInstance;
+import org.apache.samoa.learners.InstanceUtils;
 import org.apache.samoa.learners.clusterers.CluStreamModel;
 import org.apache.samoa.learners.clusterers.ClusterDataInstance;
 import org.apache.samoa.moa.core.DataPoint;
@@ -85,10 +85,9 @@ public class CluStreamModelTest extends TestCase {
         CluStreamModel cluStreamModel  = (CluStreamModel) SerializeUtils.readFromFile(fileModel);
 
         assert points != null;
-        ArrayList<DataInstance> dataInstances = new ArrayList<>();
+        ArrayList<ClusterDataInstance> dataInstances = new ArrayList<>();
         for (DataPoint point : points) {
-            double[] data = point.toDoubleArray();
-            DataInstance dataInstance = new ClusterDataInstance(data.length, point.getTimestamp(), data);
+            ClusterDataInstance dataInstance = InstanceUtils.reConvertClusterDataInstance(point);
             dataInstances.add(dataInstance);
             System.out.println(Arrays.toString(cluStreamModel.predict(dataInstance)));
         }

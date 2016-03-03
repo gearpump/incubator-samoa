@@ -2,9 +2,9 @@ package org.apache.samoa.learners.classifiers.ensemble;
 
 import org.apache.samoa.instances.Instance;
 import org.apache.samoa.instances.Utils;
-import org.apache.samoa.learners.DataInstance;
 import org.apache.samoa.learners.InstanceUtils;
-import org.apache.samoa.learners.Model;
+import org.apache.samoa.learners.classifiers.ClassificationDataInstance;
+import org.apache.samoa.learners.classifiers.ClassificationModel;
 import org.apache.samoa.moa.core.DoubleVector;
 
 import java.util.ArrayList;
@@ -29,17 +29,18 @@ import java.util.ArrayList;
  * #L%
  */
 
-public class EnsembleModel implements Model {
-    private ArrayList<Model> modelList;
+public class EnsembleModel implements ClassificationModel {
+    private ArrayList<ClassificationModel> modelList;
     private ArrayList<Double> modelWeightList;
 
-    public EnsembleModel(ArrayList<Model> modelList, ArrayList<Double> modelWeightList) {
+    public EnsembleModel(ArrayList<ClassificationModel> modelList,
+                         ArrayList<Double> modelWeightList) {
         this.modelList = modelList;
         this.modelWeightList = modelWeightList;
     }
 
     @Override
-    public double[] predict(DataInstance dataInstance) {
+    public double[] predict(ClassificationDataInstance dataInstance) {
         DoubleVector combinedVote = new DoubleVector();
         for (int i = 0; i < modelList.size(); i++) {
             double[] prediction = modelList.get(i).predict(dataInstance);
@@ -53,11 +54,11 @@ public class EnsembleModel implements Model {
         return combinedVote.getArrayCopy();
     }
 
-    /*
-        Predict the class of an input data instance, and evaluate if it is the true class.
+    /**
+     * Predict the class of an input data instance, and evaluate if it is the true class.
      */
-    public boolean evaluate(DataInstance dataInstance) {
-        Instance inst = InstanceUtils.convertToSamoaInstance(dataInstance);
+    public boolean evaluate(ClassificationDataInstance dataInstance) {
+        Instance inst = InstanceUtils.convertClassificationDataInstance(dataInstance);
         int trueClass = (int) inst.classValue();
         double[]  prediction = this.predict(dataInstance);
         int predictedClass = Utils.maxIndex(prediction);
