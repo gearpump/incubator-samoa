@@ -22,6 +22,9 @@ package org.apache.samoa.learners.classifiers;
 
 import java.io.Serializable;
 
+/**
+ * Model for classification problem
+ */
 public interface ClassificationModel extends Serializable {
     double[] predict(ClassificationDataInstance dataInstance);
 }

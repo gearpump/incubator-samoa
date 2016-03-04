@@ -22,6 +22,9 @@ package org.apache.samoa.learners.clusterers;
 
 import java.io.Serializable;
 
+/**
+ * Model for cluster problem
+ */
 public interface ClusterModel extends Serializable {
     double[] predict(ClusterDataInstance dataInstance);
 }

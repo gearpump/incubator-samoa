@@ -22,6 +22,10 @@ package org.apache.samoa.learners.classifiers;
 
 import java.io.Serializable;
 
+/**
+ * DataInstance for classification problem
+ * There may be tow types of feature in feature vector: numeric feature and nominal feature
+ */
 public class ClassificationDataInstance implements Serializable {
     private int numberNumericFeatures;
     private double[] numericData;

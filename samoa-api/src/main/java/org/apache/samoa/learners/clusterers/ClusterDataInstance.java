@@ -22,6 +22,10 @@ package org.apache.samoa.learners.clusterers;
 
 import java.io.Serializable;
 
+/**
+ * DataInstance for cluster problem
+ * The feature type is numeric
+ */
 public class ClusterDataInstance implements Serializable {
     private int numberFeatures;
     private int timeStamp;
