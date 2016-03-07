@@ -29,7 +29,7 @@ import java.util.*;
 
 import org.apache.samoa.core.ContentEvent;
 import org.apache.samoa.core.Processor;
-import org.apache.samoa.learners.ModelContentEvent;
+import org.apache.samoa.learners.ClassificationModelContentEvent;
 import org.apache.samoa.learners.ResultContentEvent;
 import org.apache.samoa.learners.classifiers.ClassificationModel;
 import org.apache.samoa.moa.core.DoubleVector;
@@ -109,8 +109,8 @@ public class PredictionCombinerProcessor implements Processor {
    */
   public boolean process(ContentEvent event) {
     // for serialize
-    if (event instanceof ModelContentEvent) {
-      return this.processModel((ModelContentEvent) event);
+    if (event instanceof ClassificationModelContentEvent) {
+      return this.processModel((ClassificationModelContentEvent) event);
     }
 
     ResultContentEvent inEvent = (ResultContentEvent) event;
@@ -135,7 +135,7 @@ public class PredictionCombinerProcessor implements Processor {
   }
 
   // for serialize
-  protected boolean processModel(ModelContentEvent event) {
+  protected boolean processModel(ClassificationModelContentEvent event) {
     ClassificationModel model = event.getModel();
     long modelIndex = event.getModelIndex();
     long instanceIndex = event.getInstanceIndex();
