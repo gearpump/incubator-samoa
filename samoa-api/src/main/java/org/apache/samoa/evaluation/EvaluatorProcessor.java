@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.samoa.core.ContentEvent;
 import org.apache.samoa.core.Processor;
-import org.apache.samoa.learners.ModelContentEvent;
+import org.apache.samoa.learners.ClassificationModelContentEvent;
 import org.apache.samoa.learners.ResultContentEvent;
 import org.apache.samoa.moa.core.Measurement;
 import org.apache.samoa.moa.evaluation.LearningCurve;
@@ -74,7 +74,7 @@ public class EvaluatorProcessor implements Processor {
   @Override
   public boolean process(ContentEvent event) {
     // for serialize
-    if (event instanceof ModelContentEvent) {
+    if (event instanceof ClassificationModelContentEvent) {
       return false;
     }
 

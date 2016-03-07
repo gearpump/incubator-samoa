@@ -21,28 +21,24 @@ package org.apache.samoa.learners.clusterers;
  */
 
 
-import org.apache.samoa.instances.Instance;
-import org.apache.samoa.learners.Model;
+import org.apache.samoa.learners.InstanceUtils;
 import org.apache.samoa.moa.cluster.Clustering;
 import org.apache.samoa.moa.core.DataPoint;
 import org.apache.samoa.moa.evaluation.MeasureCollection;
 
 import java.util.ArrayList;
 
-public class CluStreamModel implements Model {
+public class CluStreamModel implements ClusterModel {
     private Clustering clustering;
 
     public CluStreamModel(Clustering clustering) {
         this.clustering = clustering;
     }
 
-    public CluStreamModel() {
-    }
-
     @Override
-    public double[] predict(Instance inst) {
-        DataPoint dataPoint = (DataPoint) inst;
+    public double[] predict(ClusterDataInstance dataInstance) {
         double[] distances = new double[clustering.size()];
+        DataPoint dataPoint = (DataPoint) InstanceUtils.convertClusterDataInstance(dataInstance);
         for (int c = 0; c < clustering.size(); c++) {
             double distance = 0.0;
             double[] center = clustering.get(c).getCenter();
@@ -52,18 +48,26 @@ public class CluStreamModel implements Model {
             }
             distances[c] = Math.sqrt(distance);
         }
+
         return distances;
     }
 
-    public double evaluate(ArrayList<DataPoint> points, MeasureCollection measure) {
-        double score = 0.0;
+    /**
+     * Given a list of data instances and a measure, evaluate the performance of the resulting cluster.
+     */
+    public double evaluate(ArrayList<ClusterDataInstance> points, MeasureCollection measure) {
+        ArrayList<DataPoint> dataPoints = new ArrayList<>();
+        for (ClusterDataInstance dataInstance : points) {
+            dataPoints.add((DataPoint) InstanceUtils.convertClusterDataInstance(dataInstance));
+        }
+
         try {
-            measure.evaluateClusteringPerformance(clustering, null, points);
-            score = measure.getMean(0);
+            measure.evaluateClusteringPerformance(clustering, null, dataPoints);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return score;
+
+        return measure.getMean(0);
     }
 
     @Override

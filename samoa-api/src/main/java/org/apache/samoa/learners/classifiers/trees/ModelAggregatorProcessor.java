@@ -41,7 +41,7 @@ import org.apache.samoa.instances.Instances;
 import org.apache.samoa.instances.InstancesHeader;
 import org.apache.samoa.learners.InstanceContent;
 import org.apache.samoa.learners.InstancesContentEvent;
-import org.apache.samoa.learners.ModelContentEvent;
+import org.apache.samoa.learners.ClassificationModelContentEvent;
 import org.apache.samoa.learners.ResultContentEvent;
 import org.apache.samoa.moa.classifiers.core.AttributeSplitSuggestion;
 import org.apache.samoa.moa.classifiers.core.driftdetection.ChangeDetector;
@@ -321,7 +321,7 @@ final class ModelAggregatorProcessor implements Processor {
             e.printStackTrace();
           }
 
-          this.modelStream.put(new ModelContentEvent(
+          this.modelStream.put(new ClassificationModelContentEvent(
                   instContent.isLastEvent(), hoeffdingTreeModel,
                   modelIndex, instContent.getInstanceIndex(),
                   processorId, instContent.getEvaluationIndex())); // for serialize

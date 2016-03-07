@@ -21,25 +21,26 @@ package org.apache.samoa.learners;
  */
 
 import org.apache.samoa.core.ContentEvent;
+import org.apache.samoa.learners.classifiers.ClassificationModel;
 
-final public class ModelContentEvent implements ContentEvent {
+final public class ClassificationModelContentEvent implements ContentEvent {
     final private boolean isLast;
-    private Model model;
+    private ClassificationModel model;
     private long modelIndex;
     private long instanceIndex;
     private int classifierIndex;
     private int evaluationIndex;
 
-    public ModelContentEvent() {
+    public ClassificationModelContentEvent() {
         this.isLast = false;
     }
 
-    public ModelContentEvent(boolean isLast) {
+    public ClassificationModelContentEvent(boolean isLast) {
         this.isLast = isLast;
     }
 
-    public ModelContentEvent(boolean isLast, Model model, long modelIndex, long instanceIndex,
-                             int classifierIndex, int evaluationIndex) {
+    public ClassificationModelContentEvent(boolean isLast, ClassificationModel model, long modelIndex, long instanceIndex,
+                                           int classifierIndex, int evaluationIndex) {
         this.isLast = isLast;
         this.model = model;
         this.modelIndex = modelIndex;
@@ -71,11 +72,11 @@ final public class ModelContentEvent implements ContentEvent {
         this.modelIndex = modelIndex;
     }
 
-    public Model getModel() {
+    public ClassificationModel getModel() {
         return model;
     }
 
-    public void setModel(Model model) {
+    public void setModel(ClassificationModel model) {
         this.model = model;
     }
 

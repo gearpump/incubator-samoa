@@ -29,9 +29,9 @@ import java.util.*;
 
 import org.apache.samoa.core.ContentEvent;
 import org.apache.samoa.core.Processor;
-import org.apache.samoa.learners.Model;
-import org.apache.samoa.learners.ModelContentEvent;
+import org.apache.samoa.learners.ClassificationModelContentEvent;
 import org.apache.samoa.learners.ResultContentEvent;
+import org.apache.samoa.learners.classifiers.ClassificationModel;
 import org.apache.samoa.moa.core.DoubleVector;
 import org.apache.samoa.moa.core.SerializeUtils;
 import org.apache.samoa.topology.Stream;
@@ -97,7 +97,7 @@ public class PredictionCombinerProcessor implements Processor {
 
   protected Map<Long, Integer> mapCountsforModelReceived; // for serialize
 
-  protected Map<Long, ArrayList<Model>> mapModelListforModelReceived; // for serialize
+  protected Map<Long, ArrayList<ClassificationModel>> mapModelListforModelReceived; // for serialize
 
   protected Map<Long, ArrayList<Double>> mapModelWeightListforModelReceived; // for serialize
   /**
@@ -109,8 +109,8 @@ public class PredictionCombinerProcessor implements Processor {
    */
   public boolean process(ContentEvent event) {
     // for serialize
-    if (event instanceof ModelContentEvent) {
-      return this.processModel((ModelContentEvent) event);
+    if (event instanceof ClassificationModelContentEvent) {
+      return this.processModel((ClassificationModelContentEvent) event);
     }
 
     ResultContentEvent inEvent = (ResultContentEvent) event;
@@ -135,8 +135,8 @@ public class PredictionCombinerProcessor implements Processor {
   }
 
   // for serialize
-  protected boolean processModel(ModelContentEvent event) {
-    Model model = event.getModel();
+  protected boolean processModel(ClassificationModelContentEvent event) {
+    ClassificationModel model = event.getModel();
     long modelIndex = event.getModelIndex();
     long instanceIndex = event.getInstanceIndex();
     int classifierIndex = event.getClassifierIndex();
@@ -213,13 +213,13 @@ public class PredictionCombinerProcessor implements Processor {
   }
 
   //for serialize
-  protected void addStatisticsForModelReceived(long modelIndex, int classifierIndex, Model model, int add) {
+  protected void addStatisticsForModelReceived(long modelIndex, int classifierIndex, ClassificationModel model, int add) {
     if (this.mapCountsforModelReceived == null) {
       this.mapCountsforModelReceived = new HashMap<>();
       this.mapModelListforModelReceived = new HashMap<>();
       this.mapModelWeightListforModelReceived = new HashMap<>();
     }
-    ArrayList<Model> modelList = this.mapModelListforModelReceived.get(modelIndex);
+    ArrayList<ClassificationModel> modelList = this.mapModelListforModelReceived.get(modelIndex);
     if (modelList == null) {
       modelList = new ArrayList<>();
     }
